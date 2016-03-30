@@ -24,6 +24,8 @@ namespace FlowChart
         List<Shape> shapeList = new List<Shape>();
         private bool isShapeMoving;
         private bool isMakingLine;
+        private Polyline polyLine;
+        private Polyline polySegment = new Polyline {StrokeThickness = 2};
 
         public MainWindow()
         {
@@ -130,47 +132,75 @@ namespace FlowChart
                 
                 }               
             }
-
-            Point pt = e.GetPosition((Canvas)sender);
-            Line line = new Line
+            if (isMakingLine)
             {
-                Stroke = new SolidColorBrush(Colors.Black),
+                if (polyLine == null)
+                {
+                    Point pt = e.GetPosition((Canvas)sender);
+
+                    polyLine = new Polyline {Stroke = Brushes.Black, StrokeThickness = 2};
+                    polyLine.Points.Add(pt);
+                    CanvasChart.Children.Add(polyLine);
+
+                    polySegment.Stroke = Brushes.Red;
+                    polySegment.Points.Add(pt);
+                    polySegment.Points.Add(pt);
+                    CanvasChart.Children.Add(polySegment);
+                    shapeList.Add(polyLine);
+                }
                 
-
-            };
-
-            Canvas.SetLeft(line, 10);
-            Canvas.SetRight(line, 130);
-            CanvasChart.Children.Add(line);
-            shapeList.Add(line);
-            //HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-            //if (result != null)
-            //{
-            //    // Get the underlying shape clicked on, and remove it from
-            //    // the canvas.
-
-            //    var mysteryShape = result.VisualHit as Shape;
-
-            //    Canvas.SetLeft(mysteryShape, pt.X);
-            //    Canvas.SetTop(mysteryShape, pt.Y);
-            //}
+            }
 
         }
 
         private void CanvasChart_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            isShapeMoving = false;
-            Point pt = e.GetPosition((Canvas) sender);
-            HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-            if (result != null)
+            if (isMakingLine != true)
             {
-                var unknownShape = result.VisualHit as Shape;
-                unknownShape.ReleaseMouseCapture();
+                isShapeMoving = false;
+                Point pt = e.GetPosition((Canvas) sender);
+                HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
+                if (result != null)
+                {
+                    var unknownShape = result.VisualHit as Shape;
+                    unknownShape.ReleaseMouseCapture();
+                }            
+            }
+            if (isMakingLine && polyLine != null)
+            {
+                polySegment.Points[1] = e.GetPosition(CanvasChart);
+
+                var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
+                if (distance >= 10)
+                {
+                    polyLine.Points.Add(polySegment.Points[1]);
+                    polySegment.Points[0] = polySegment.Points[1];
+                    isMakingLine = false;
+                    btnLine.IsEnabled = true;
+                }
+                else
+                {
+                    if (polyLine.Points.Count < 2)
+                    {
+                      CanvasChart.Children.Remove(polyLine);   
+                    }
+                    polyLine = null;
+                    polySegment.Points.Clear();
+                    CanvasChart.Children.Remove(polySegment);
+
+                }
             }
         }
 
         private void CanvasChart_OnMouseMove(object sender, MouseEventArgs e)
         {
+            if (isMakingLine && polyLine != null)
+            {
+                polySegment.Points[1] = e.GetPosition(CanvasChart);
+
+                var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
+                polySegment.Stroke = distance >= 10 ? Brushes.Green : Brushes.Red;
+            }
             if (!isShapeMoving)
             {
                 return;

@@ -17,7 +17,7 @@
                 <Button x:Name="btnRomb" Content="Romb" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnRomb_Click"/>
                 <Button x:Name="btnLine" Content="Linje" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnLine_OnClick"/>
             </StackPanel>
-            <Canvas Name="CanvasChart" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto"/>
+            <Canvas Name="CanvasChart" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Background="Transparent" Height="Auto" DockPanel.Dock="Left" Width="Auto"/>
         </DockPanel>
 
     </Grid>
