@@ -1,0 +1,24 @@
+﻿<Window x:Class="FlowChart.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FlowChart"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800">
+    <Grid>
+        <DockPanel HorizontalAlignment="Left" Height="600" LastChildFill="True"  VerticalAlignment="Top" Width="800">
+            <Grid Height="50" Background="WhiteSmoke" Width="800" DockPanel.Dock="Top">
+                <Label x:Name="LblHeader" Content="FlowChart Master 5000" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            <StackPanel Background="GhostWhite" Height="Auto" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="110">
+                <Button x:Name="btnRectangle" Content="Rektangel" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnRectangle_Click"/>
+                <Button x:Name="btnEllipse" Content="Ellips" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnEllipse_Click"/>
+                <Button x:Name="btnRomb" Content="Romb" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnRomb_Click"/>
+                <Button x:Name="btnLine" Content="Linje" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnLine_OnClick"/>
+            </StackPanel>
+            <Canvas Name="CanvasChart" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto"/>
+        </DockPanel>
+
+    </Grid>
+</Window>
