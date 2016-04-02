@@ -7,17 +7,33 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800">
     <Grid>
-        <DockPanel HorizontalAlignment="Left" Height="600" LastChildFill="True"  VerticalAlignment="Top" Width="800">
+        <DockPanel HorizontalAlignment="Left" Height="569" LastChildFill="True"  VerticalAlignment="Top" Width="800" Margin="0,0,-8,0">
             <Grid Height="50" Background="WhiteSmoke" Width="800" DockPanel.Dock="Top">
-                <Label x:Name="LblHeader" Content="FlowChart Master 5000" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <ToolBar Background="AliceBlue">
+                    <RadioButton x:Name="rbCircleOption" GroupName="shapeSelection" Click="RbCircleOption_OnClick">
+                        <Ellipse Fill="CornflowerBlue" Height="35" Width="35" />
+                    </RadioButton>
+                    <RadioButton x:Name="rbRectangleOption" GroupName="shapeSelection" Click="RbRectangleOption_OnClick">
+                        <Rectangle Fill="CornflowerBlue" Height="35" Width="35" RadiusY="10" RadiusX="10" />
+                    </RadioButton>
+                    <RadioButton  x:Name="rbDiamondOption" GroupName="shapeSelection" Click="RbDiamondOption_OnClick">
+                        <Path Data="M50,0L100,50 50,100 0,50z" Fill="CornflowerBlue" Stretch="Fill" Stroke="CornflowerBlue" StrokeThickness="1"
+                              Margin="0" HorizontalAlignment="Left" Width="35" Height="35" VerticalAlignment="Top"/>
+                    </RadioButton>
+                    <RadioButton x:Name="rbLineOption" GroupName="shapeSelection" Click="RbLineOption_OnClick">
+                        <Line Height="35" Width="35" StrokeThickness="8" Stroke="CornflowerBlue" X1="5" Y1="5" Y2="30" X2="30" StrokeStartLineCap="Triangle" StrokeEndLineCap="Round"/>
+                    </RadioButton>
+                    <RadioButton x:Name="rbTextOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbTextOption_OnClick">A
+                    </RadioButton>
+                    <RadioButton x:Name="rbMoveOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbMoveOption_OnClick">A
+                    </RadioButton>
+                </ToolBar>
             </Grid>
-            <StackPanel Background="GhostWhite" Height="Auto" DockPanel.Dock="Left" HorizontalAlignment="Left" Width="110">
-                <Button x:Name="btnRectangle" Content="Rektangel" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnRectangle_Click"/>
-                <Button x:Name="btnEllipse" Content="Ellips" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnEllipse_Click"/>
-                <Button x:Name="btnRomb" Content="Romb" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="btnRomb_Click"/>
-                <Button x:Name="btnLine" Content="Linje" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnLine_OnClick"/>
-            </StackPanel>
-            <Canvas Name="CanvasChart" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Background="Transparent" Height="Auto" DockPanel.Dock="Left" Width="Auto"/>
+            <Grid DockPanel.Dock="Bottom" Height="50" Background="AliceBlue">
+                <Button x:Name="btnClear" Content="Rensa" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnClear_OnClick"/>
+                <Button x:Name="btnClose" Content="Avsluta" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnClose_OnClick"/>
+            </Grid>
+            <Canvas Name="CanvasChart" Background="Transparent" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto"/>
         </DockPanel>
 
     </Grid>
