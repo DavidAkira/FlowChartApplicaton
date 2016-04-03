@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlowChart"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800">
-    <Grid>
+        Title="MainWindow" Height="600" Width="800" ResizeMode="CanResizeWithGrip">
+    <Grid  >
         <DockPanel HorizontalAlignment="Left" Height="569" LastChildFill="True"  VerticalAlignment="Top" Width="800" Margin="0,0,-8,0">
             <Grid Height="50" Background="WhiteSmoke" Width="800" DockPanel.Dock="Top">
                 <ToolBar Background="AliceBlue">
@@ -25,15 +25,19 @@
                     </RadioButton>
                     <RadioButton x:Name="rbTextOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbTextOption_OnClick">A
                     </RadioButton>
-                    <RadioButton x:Name="rbMoveOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbMoveOption_OnClick">A
+                    <RadioButton x:Name="rbMoveOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbMoveOption_OnClick">M
                     </RadioButton>
                 </ToolBar>
             </Grid>
-            <Grid DockPanel.Dock="Bottom" Height="50" Background="AliceBlue">
-                <Button x:Name="btnClear" Content="Rensa" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnClear_OnClick"/>
-                <Button x:Name="btnClose" Content="Avsluta" Height="30" HorizontalAlignment="Left" Width="70" Margin="15" Click="BtnClose_OnClick"/>
+            <Grid DockPanel.Dock="Bottom" Height="50" Background="AliceBlue" Margin="0,0,10,0" Width="Auto">
+                <Button x:Name="btnClear" Content="Rensa" Height="30" HorizontalAlignment="Left" Width="70" Margin="10,10,0,10" Click="BtnClear_OnClick"/>
+                <Button x:Name="btnClose" Content="Avsluta" Height="30" HorizontalAlignment="Left" Width="70" Margin="710,10,0,10" Click="BtnClose_OnClick"/>
             </Grid>
-            <Canvas Name="CanvasChart" Background="Transparent" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto"/>
+            <Canvas Name="CanvasChart" Background="Transparent" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto">
+                <ContentControl>
+                    
+                </ContentControl>
+            </Canvas>
         </DockPanel>
 
     </Grid>

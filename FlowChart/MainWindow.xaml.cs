@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace FlowChart
@@ -34,72 +24,6 @@ namespace FlowChart
         {
             InitializeComponent();
         }
-
-
-        //private void btnRectangle_Click(object sender, RoutedEventArgs e)
-        //{
-        //    Rectangle rekt = new Rectangle();
-        //    rekt.Stroke = new SolidColorBrush(Colors.Blue);
-        //    rekt.Fill = new SolidColorBrush(Colors.LightBlue);
-        //    rekt.Height = 30;
-        //    rekt.Width = 50;
-        //    Canvas.SetLeft(rekt, 10);
-        //    Canvas.SetTop(rekt, 10);
-        //    CanvasChart.Children.Add(rekt);
-        //    shapeList.Add(rekt);
-
-        //}
-
-        //private void btnEllipse_Click(object sender, RoutedEventArgs e)
-        //{
-        //    Ellipse ellipse = new Ellipse();
-        //    ellipse.Stroke = new SolidColorBrush(Colors.Blue);
-        //    ellipse.Fill = new SolidColorBrush(Colors.LightBlue);
-        //    ellipse.Height = 30;
-        //    ellipse.Width = 50;
-        //    Canvas.SetLeft(ellipse, 10);
-        //    Canvas.SetTop(ellipse, 60);
-        //    CanvasChart.Children.Add(ellipse);
-        //    shapeList.Add(ellipse);
-        //}
-
-        //private void btnRomb_Click(object sender, RoutedEventArgs e)
-        //{
-        //    Polygon rhomb = new Polygon
-        //    {
-        //        Points = new PointCollection()
-        //        {
-        //            new Point(10,25),
-        //            new Point(25,10),
-        //            new Point(40,25),
-        //            new Point(25,40)
-        //        },
-        //        Stroke = new SolidColorBrush(Colors.Blue),
-        //        Fill = new SolidColorBrush(Colors.LightBlue),
-
-        //};
-
-        //    //RotateTransform transform = new RotateTransform(45);
-        //    //rhomb.RenderTransform = transform;
-        //    //Canvas.SetLeft(rhomb, 25);
-        //    //Canvas.SetTop(rhomb, 110);
-        //    CanvasChart.Children.Add(rhomb);
-        //    shapeList.Add(rhomb);
-        //}
-
-        //private void BtnLine_OnClick(object sender, RoutedEventArgs e)
-        //{
-        //    if (isMakingLine != true)
-        //    {
-        //        isMakingLine = true;
-        //        btnLine.IsEnabled = false;
-        //    }
-        //    else
-        //    {
-        //        isMakingLine = false;
-        //    }
-        //}
-
         private void CanvasChart_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             //Tar musposition
@@ -122,11 +46,11 @@ namespace FlowChart
             Shape shapeToRender = null;
             switch (currentOption)
             {
-                case Enums.SelectedShape.Circle:
+                case Enums.SelectedShape.Circle:  
                     shapeToRender = new Ellipse()
                     {
                         Stroke = Brushes.Black,
-                        Fill = Brushes.LightBlue,
+                        Fill = chosenColor,
                         Height = 30,
                         Width = 50,
                     };
@@ -135,7 +59,7 @@ namespace FlowChart
                     shapeToRender = new Rectangle()
                     {
                         Stroke = Brushes.Black,
-                        Fill = Brushes.LightBlue,
+                        Fill = chosenColor,
                         Height = 30,
                         Width = 50,
                         RadiusX = 10,
@@ -156,8 +80,8 @@ namespace FlowChart
                         Fill = chosenColor
                     };
                     break;
-                case Enums.SelectedShape.Line:             
-                    shapeToRender = new Polyline() {
+                case Enums.SelectedShape.Line:
+                    polyLine = new Polyline() {
                         Stroke = Brushes.Black,
                         StrokeThickness = 2
                     };
@@ -169,6 +93,7 @@ namespace FlowChart
                     polySegment.Points.Add(pt);
                     CanvasChart.Children.Add(polySegment);
                     shapeList.Add(polyLine);
+                    isMakingLine = true;
                     break;
                 case Enums.SelectedShape.Text:
                     break;
@@ -177,21 +102,24 @@ namespace FlowChart
                     if (result != null)
                     {
                         var unknownShape = result.VisualHit as Shape;
-                        MouseDragElementBehaviour dragBehaviour = new MouseDragElementBehaviour();
-                    }
-                    
+                        if (unknownShape != null)
+                        {
+                            unknownShape.CaptureMouse();
+                            isShapeMoving = true;                
+                        }
+                    }                  
                     break;
                     
                 default:
                     return;
             }
+
             if (shapeToRender != null)
             {
                 double left = pt.X - (shapeToRender.ActualWidth/2);
                 double top = pt.Y - (shapeToRender.ActualHeight/2);
                 Canvas.SetLeft(shapeToRender, left);
                 Canvas.SetTop(shapeToRender,top);
-
                 CanvasChart.Children.Add(shapeToRender);
                 shapeList.Add(shapeToRender);
             }
@@ -199,16 +127,20 @@ namespace FlowChart
 
         private void CanvasChart_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (isMakingLine != true)
+            if (isShapeMoving)
             {
-                isShapeMoving = false;
+                
                 Point pt = e.GetPosition((Canvas) sender);
                 HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-                //if (result != null)
-                //{
-                //    var unknownShape = result.VisualHit as Shape;
-                //    unknownShape.ReleaseMouseCapture();
-                //}            
+                if (result != null)
+                {
+                    var unknownShape = result.VisualHit as Shape;
+                    if (unknownShape != null)
+                    {
+                        unknownShape.ReleaseMouseCapture();
+                        isShapeMoving = false;                    
+                    }
+                }
             }
             if (isMakingLine && polyLine != null)
             {
@@ -219,8 +151,7 @@ namespace FlowChart
                 {
                     polyLine.Points.Add(polySegment.Points[1]);
                     polySegment.Points[0] = polySegment.Points[1];
-                    isMakingLine = false;
-                    //btnLine.IsEnabled = true;
+                    isMakingLine = false;    
                     polyLine = null;
                 }
                 else
@@ -239,7 +170,7 @@ namespace FlowChart
 
         private void CanvasChart_OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (isMakingLine && polyLine != null)
+            if (polyLine != null)
             {
                 polySegment.Points[1] = e.GetPosition(CanvasChart);
 
@@ -252,16 +183,19 @@ namespace FlowChart
             }
             Point pt = e.GetPosition((Canvas) sender);
             HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-            //if (result != null)
-            //{
-            //    var unknownShape = result.VisualHit as Shape;
-            //    // Centrerar geometri till musen
-            //    double left = pt.X - (unknownShape.ActualWidth/2);
-            //    double top = pt.Y - (unknownShape.ActualHeight/2);
-            //    //Sätter ny position
-            //    Canvas.SetLeft(unknownShape, left);
-            //    Canvas.SetTop(unknownShape, top);
-            //}
+            if (result != null)
+            {
+                var unknownShape = result.VisualHit as Shape;
+                if (unknownShape != null)
+                {
+                    // Centrerar geometri till musen
+                    double left = pt.X - (unknownShape.ActualWidth / 2);
+                    double top = pt.Y - (unknownShape.ActualHeight / 2);
+                    //Sätter ny position
+                    Canvas.SetLeft(unknownShape, left);
+                    Canvas.SetTop(unknownShape, top);        
+                }
+            }
 
         }
 
