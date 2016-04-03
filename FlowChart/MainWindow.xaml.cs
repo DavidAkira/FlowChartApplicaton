@@ -49,7 +49,7 @@ namespace FlowChart
             {
                 case Enums.SelectedShape.Circle:
                     gridToRender = new Grid
-                    {
+                    {   
                         Background = Brushes.Transparent,
                         Height = 50,
                         Width = 80
@@ -148,16 +148,12 @@ namespace FlowChart
                     HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
                     if (result != null)
                     {
-                        var unknownGrid = result.VisualHit as Grid;
+                        var unknownShape = result.VisualHit as Shape;
+                        var unknownGrid = unknownShape.Parent as Grid;
                         if (unknownGrid != null)
                         {
-                            var unknownShape = unknownGrid.Children[0] as Shape;
-                            if (unknownShape != null)
-                            {
-                                unknownShape.CaptureMouse();
-                                isShapeMoving = true;                
-                            }
-                            
+                            unknownGrid.CaptureMouse();
+                            isShapeMoving = true;                
                         }
                     }                  
                     break;  
@@ -183,8 +179,7 @@ namespace FlowChart
                 HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
                 if (result != null)
                 {
-                    var unknownGrid = result.VisualHit as Grid;
-                    var unknownShape = unknownGrid.Children[0] as Shape;
+                    var unknownShape = result.VisualHit as Grid;
                     if (unknownShape != null)
                     {
                         unknownShape.ReleaseMouseCapture();
@@ -235,8 +230,7 @@ namespace FlowChart
             HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
             if (result != null)
             {
-                var unknownGrid = result.VisualHit as Grid;
-                var unknownShape = unknownGrid.Children[0] as Shape;
+                var unknownShape = result.VisualHit as Grid;
                 if (unknownShape != null)
                 {
                     // Centrerar geometri till musen

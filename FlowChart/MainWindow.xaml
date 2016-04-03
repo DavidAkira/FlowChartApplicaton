@@ -7,10 +7,10 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" ResizeMode="CanResizeWithGrip">
-    <Grid  >
+    <Grid>
         <DockPanel HorizontalAlignment="Left" Height="569" LastChildFill="True"  VerticalAlignment="Top" Width="800" Margin="0,0,-8,0">
             <Grid Height="50" Background="WhiteSmoke" Width="800" DockPanel.Dock="Top">
-                <ToolBar Background="AliceBlue">
+                <ToolBar Background="AliceBlue" HorizontalAlignment="Center">
                     <RadioButton x:Name="rbCircleOption" GroupName="shapeSelection" Click="RbCircleOption_OnClick">
                         <Ellipse Fill="CornflowerBlue" Height="35" Width="35" />
                     </RadioButton>
