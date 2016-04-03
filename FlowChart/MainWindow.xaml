@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FlowChart"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800" ResizeMode="CanResizeWithGrip">
     <Grid  >
@@ -31,12 +32,11 @@
             </Grid>
             <Grid DockPanel.Dock="Bottom" Height="50" Background="AliceBlue" Margin="0,0,10,0" Width="Auto">
                 <Button x:Name="btnClear" Content="Rensa" Height="30" HorizontalAlignment="Left" Width="70" Margin="10,10,0,10" Click="BtnClear_OnClick"/>
+                <xctk:ColorPicker x:Name="clrPicker" SelectedColor="CornflowerBlue" Width="50" Height="30"></xctk:ColorPicker>
                 <Button x:Name="btnClose" Content="Avsluta" Height="30" HorizontalAlignment="Left" Width="70" Margin="710,10,0,10" Click="BtnClose_OnClick"/>
             </Grid>
             <Canvas Name="CanvasChart" Background="Transparent" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto">
-                <ContentControl>
-                    
-                </ContentControl>
+                <ContentControl></ContentControl>
             </Canvas>
         </DockPanel>
 

@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.Core.Converters;
 
 namespace FlowChart
 {
@@ -18,8 +20,7 @@ namespace FlowChart
         private bool isMakingLine;
         private Polyline polyLine;
         private Polyline polySegment;
-        private Brush chosenColor;
-
+        private SolidColorBrush chosenColor;
         public MainWindow()
         {
             InitializeComponent();
@@ -41,7 +42,8 @@ namespace FlowChart
 
         private void CanvasChart_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            chosenColor = Brushes.Red;
+            //Tar fram ett hexadecimalt värde ifrån färgväljaren och converterar till en Brush
+            chosenColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(clrPicker.SelectedColorText));
             Point pt = e.GetPosition((Canvas)sender);
             Shape shapeToRender = null;
             switch (currentOption)
@@ -49,19 +51,17 @@ namespace FlowChart
                 case Enums.SelectedShape.Circle:  
                     shapeToRender = new Ellipse()
                     {
-                        Stroke = Brushes.Black,
                         Fill = chosenColor,
-                        Height = 30,
-                        Width = 50,
+                        Height = 50,
+                        Width = 80,
                     };
                     break;
                 case Enums.SelectedShape.Rectangle:
                     shapeToRender = new Rectangle()
                     {
-                        Stroke = Brushes.Black,
                         Fill = chosenColor,
-                        Height = 30,
-                        Width = 50,
+                        Height = 50,
+                        Width = 80,
                         RadiusX = 10,
                         RadiusY = 10
                     };
@@ -71,12 +71,11 @@ namespace FlowChart
                     {
                         Points = new PointCollection()
                         {
-                            new Point(10, 25),
-                            new Point(25, 10),
-                            new Point(40, 25),
-                            new Point(25, 40)
-                        },
-                        Stroke = new SolidColorBrush(Colors.Black),
+                            new Point(0, 25),
+                            new Point(25, 0),
+                            new Point(50, 25),
+                            new Point(25, 50)
+                        }, 
                         Fill = chosenColor
                     };
                     break;
@@ -108,18 +107,16 @@ namespace FlowChart
                             isShapeMoving = true;                
                         }
                     }                  
-                    break;
-                    
+                    break;  
                 default:
                     return;
             }
-
             if (shapeToRender != null)
             {
-                double left = pt.X - (shapeToRender.ActualWidth/2);
-                double top = pt.Y - (shapeToRender.ActualHeight/2);
-                Canvas.SetLeft(shapeToRender, left);
-                Canvas.SetTop(shapeToRender,top);
+                //double left = pt.X - (shapeToRender.ActualWidth/2);
+                //double top = pt.Y - (shapeToRender.ActualHeight/2);
+                Canvas.SetLeft(shapeToRender, pt.X);
+                Canvas.SetTop(shapeToRender,pt.Y);
                 CanvasChart.Children.Add(shapeToRender);
                 shapeList.Add(shapeToRender);
             }
@@ -145,7 +142,7 @@ namespace FlowChart
             if (isMakingLine && polyLine != null)
             {
                 polySegment.Points[1] = e.GetPosition(CanvasChart);
-
+                //kontrollerar att linjen är längre än 20 annars ritas den ej ut.
                 var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
                 if (distance >= 20)
                 {

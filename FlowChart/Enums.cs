@@ -4,6 +4,7 @@
     {
         public enum SelectedShape
         {
+            Empty,
             Circle,
             Rectangle,
             Line,
