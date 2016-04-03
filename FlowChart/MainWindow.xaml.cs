@@ -14,8 +14,7 @@ namespace FlowChart
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<Shape> shapeList = new List<Shape>();
-        private Enums.SelectedShape currentOption;
+        private Enums.SelectedShape currentOption = Enums.SelectedShape.Move;
         private bool isShapeMoving;
         private bool isMakingLine;
         private Polyline polyLine;
@@ -45,39 +44,91 @@ namespace FlowChart
             //Tar fram ett hexadecimalt värde ifrån färgväljaren och converterar till en Brush
             chosenColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(clrPicker.SelectedColorText));
             Point pt = e.GetPosition((Canvas)sender);
-            Shape shapeToRender = null;
+            Grid gridToRender = null;
             switch (currentOption)
             {
-                case Enums.SelectedShape.Circle:  
-                    shapeToRender = new Ellipse()
+                case Enums.SelectedShape.Circle:
+                    gridToRender = new Grid
+                    {
+                        Background = Brushes.Transparent,
+                        Height = 50,
+                        Width = 80
+                    };
+                    gridToRender.Children.Add(new Ellipse
                     {
                         Fill = chosenColor,
                         Height = 50,
-                        Width = 80,
-                    };
+                        Width = 80,                       
+                    });
+                    gridToRender.Children.Add(new TextBox
+                    {
+                        BorderBrush = Brushes.Transparent,
+                        Background = chosenColor,
+                        MaxHeight = 50,
+                        MaxWidth = 80,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = "Ellipse"
+                    });
                     break;
                 case Enums.SelectedShape.Rectangle:
-                    shapeToRender = new Rectangle()
+                    gridToRender = new Grid
+                    {
+                        Background = Brushes.Transparent,
+                        Height = 50,
+                        Width = 80
+                    };
+                    gridToRender.Children.Add(new Rectangle()
                     {
                         Fill = chosenColor,
                         Height = 50,
                         Width = 80,
                         RadiusX = 10,
                         RadiusY = 10
-                    };
+                    });
+                    gridToRender.Children.Add(new TextBox
+                    {
+                        BorderBrush = Brushes.Transparent,
+                        Background = chosenColor,
+                        MaxHeight = 50,
+                        MaxWidth = 80,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = "Rektangel"
+                    });
                     break;
                 case Enums.SelectedShape.Diamond:
-                    shapeToRender = new Polygon
+                    gridToRender = new Grid
+                    {
+                        Background = Brushes.Transparent,
+                        Height = 80,
+                        Width = 80
+                    };
+                    gridToRender.Children.Add(new Polygon
                     {
                         Points = new PointCollection()
                         {
-                            new Point(0, 25),
-                            new Point(25, 0),
-                            new Point(50, 25),
-                            new Point(25, 50)
-                        }, 
+                            new Point(0, 40),
+                            new Point(40, 0),
+                            new Point(80, 40),
+                            new Point(40, 80)
+                        },
                         Fill = chosenColor
-                    };
+                    });
+                    gridToRender.Children.Add(new TextBox
+                    {
+                        BorderBrush = Brushes.Transparent,
+                        Background = chosenColor,
+                        MaxHeight = 100,
+                        MaxWidth = 80,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = "Romb"
+                    });
+
                     break;
                 case Enums.SelectedShape.Line:
                     polyLine = new Polyline() {
@@ -91,34 +142,35 @@ namespace FlowChart
                     polySegment.Points.Add(pt);
                     polySegment.Points.Add(pt);
                     CanvasChart.Children.Add(polySegment);
-                    shapeList.Add(polyLine);
                     isMakingLine = true;
-                    break;
-                case Enums.SelectedShape.Text:
                     break;
                 case Enums.SelectedShape.Move:
                     HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
                     if (result != null)
                     {
-                        var unknownShape = result.VisualHit as Shape;
-                        if (unknownShape != null)
+                        var unknownGrid = result.VisualHit as Grid;
+                        if (unknownGrid != null)
                         {
-                            unknownShape.CaptureMouse();
-                            isShapeMoving = true;                
+                            var unknownShape = unknownGrid.Children[0] as Shape;
+                            if (unknownShape != null)
+                            {
+                                unknownShape.CaptureMouse();
+                                isShapeMoving = true;                
+                            }
+                            
                         }
                     }                  
                     break;  
                 default:
                     return;
             }
-            if (shapeToRender != null)
+            if (gridToRender != null)
             {
                 //double left = pt.X - (shapeToRender.ActualWidth/2);
                 //double top = pt.Y - (shapeToRender.ActualHeight/2);
-                Canvas.SetLeft(shapeToRender, pt.X);
-                Canvas.SetTop(shapeToRender,pt.Y);
-                CanvasChart.Children.Add(shapeToRender);
-                shapeList.Add(shapeToRender);
+                Canvas.SetLeft(gridToRender, pt.X);
+                Canvas.SetTop(gridToRender, pt.Y);
+                CanvasChart.Children.Add(gridToRender);
             }
         }
 
@@ -131,7 +183,8 @@ namespace FlowChart
                 HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
                 if (result != null)
                 {
-                    var unknownShape = result.VisualHit as Shape;
+                    var unknownGrid = result.VisualHit as Grid;
+                    var unknownShape = unknownGrid.Children[0] as Shape;
                     if (unknownShape != null)
                     {
                         unknownShape.ReleaseMouseCapture();
@@ -182,7 +235,8 @@ namespace FlowChart
             HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
             if (result != null)
             {
-                var unknownShape = result.VisualHit as Shape;
+                var unknownGrid = result.VisualHit as Grid;
+                var unknownShape = unknownGrid.Children[0] as Shape;
                 if (unknownShape != null)
                 {
                     // Centrerar geometri till musen
@@ -224,11 +278,6 @@ namespace FlowChart
         private void RbLineOption_OnClick(object sender, RoutedEventArgs e)
         {
             currentOption = Enums.SelectedShape.Line;
-        }
-
-        private void RbTextOption_OnClick(object sender, RoutedEventArgs e)
-        {
-            currentOption = Enums.SelectedShape.Text;
         }
 
         private void RbMoveOption_OnClick(object sender, RoutedEventArgs e)

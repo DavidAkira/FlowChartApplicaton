@@ -24,8 +24,6 @@
                     <RadioButton x:Name="rbLineOption" GroupName="shapeSelection" Click="RbLineOption_OnClick">
                         <Line Height="35" Width="35" StrokeThickness="8" Stroke="CornflowerBlue" X1="5" Y1="5" Y2="30" X2="30" StrokeStartLineCap="Triangle" StrokeEndLineCap="Round"/>
                     </RadioButton>
-                    <RadioButton x:Name="rbTextOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbTextOption_OnClick">A
-                    </RadioButton>
                     <RadioButton x:Name="rbMoveOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbMoveOption_OnClick">M
                     </RadioButton>
                 </ToolBar>
