@@ -58,7 +58,7 @@ namespace FlowChart
                 case Enums.SelectedShape.Circle:
                     gridToRender = new Grid
                     {   
-                        Background = Brushes.Transparent,
+                        
                         Height = 50,
                         Width = 80
                     };
@@ -83,7 +83,7 @@ namespace FlowChart
                 case Enums.SelectedShape.Rectangle:
                     gridToRender = new Grid
                     {
-                        Background = Brushes.Transparent,
+                        
                         Height = 50,
                         Width = 80
 
@@ -164,6 +164,7 @@ namespace FlowChart
                                 Y2 = secondLinePosition.Y
                             };
                             Canvas.SetZIndex(newLine, -10);
+                            newLine.IsHitTestVisible = false;
                             CanvasChart.Children.Add(newLine);
                             firstLine = true;
                         }
@@ -188,19 +189,16 @@ namespace FlowChart
                         if (unknownShape != null)
                         {
                             movableGrid = unknownShape.Parent as Grid;
-
-                            currentPosition = new Point()
+                            if (movableGrid != null)
                             {
-                                X = Canvas.GetLeft(movableGrid),
-                                Y = Canvas.GetTop(movableGrid)
-                            };
-
-                            
-
-                            //movableGrid = unknownShape.Parent as Grid;
-
-                            unknownShape.CaptureMouse();
-                            isShapeMoving = true;
+                                currentPosition = new Point()
+                                {
+                                    X = Canvas.GetLeft(movableGrid),
+                                    Y = Canvas.GetTop(movableGrid)
+                                };
+                                movableGrid.CaptureMouse();
+                                isShapeMoving = true;     
+                            }
                         }
                     }
                     break;  
@@ -259,8 +257,6 @@ namespace FlowChart
                     //Grid MovableGrid = unknownShape.Parent  as Grid;
                     Canvas.SetTop(movableGrid, pt.Y - movableGrid.Height / 2);
                     Canvas.SetLeft(movableGrid, pt.X - movableGrid.Width / 2);
-
-                    System.Console.WriteLine("hgjgfhjv");
 
                     //hitta alla lines i canvas som ligger i samma koordinater som denna griden och flytta dem samtidigt
                     foreach (var item in CanvasChart.Children)
