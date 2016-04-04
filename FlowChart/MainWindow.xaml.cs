@@ -16,12 +16,16 @@ namespace FlowChart
     {
         private Enums.SelectedShape currentOption = Enums.SelectedShape.Move;
         private bool isShapeMoving;
-        private bool isMakingLine;
-        private Polyline polyLine;
-        private Polyline polySegment;
         private SolidColorBrush chosenColor;
         private Grid unknownGrid = null;
         private Shape unknownShape = null;
+        private bool firstLine = true;
+        private Point firstLinePosition;
+        private Point secondLinePosition;
+
+        private Point currentPosition;
+        private Grid movableGrid;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -33,11 +37,12 @@ namespace FlowChart
 
             //Använder HitTest() för att se om användaren klickade på ett item i canvas
             HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-
+            
             // Tar bort den visuella träffen från canvas.
             if (result != null)
-            {
+            {                
                 CanvasChart.Children.Remove(result.VisualHit as Shape);
+                CanvasChart.Children.Remove(result.VisualHit as Grid);
             }
         }
 
@@ -47,6 +52,7 @@ namespace FlowChart
             chosenColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(clrPicker.SelectedColorText));
             Point pt = e.GetPosition(CanvasChart);
             Grid gridToRender = null;
+            HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
             switch (currentOption)
             {
                 case Enums.SelectedShape.Circle:
@@ -134,32 +140,65 @@ namespace FlowChart
 
                     break;
                 case Enums.SelectedShape.Line:
-                    polyLine = new Polyline() {
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 2
-                    };
-                    polyLine.Points.Add(pt);
-                    CanvasChart.Children.Add(polyLine);
-                    polySegment = new Polyline { StrokeThickness = 2 };
-                    polySegment.Stroke = Brushes.Red;
-                    polySegment.Points.Add(pt);
-                    polySegment.Points.Add(pt);
-                    CanvasChart.Children.Add(polySegment);
-                    isMakingLine = true;
+                    unknownShape = result.VisualHit as Shape;
+                    if (unknownShape != null)
+                    {
+                        Grid gridOfShape = unknownShape.Parent as Grid;
+                        if (firstLine)
+                        {
+                            firstLinePosition.X = Canvas.GetLeft(gridOfShape) + (gridOfShape.Width / 2);
+                            firstLinePosition.Y = Canvas.GetTop(gridOfShape) + (gridOfShape.Height / 2);
+                            firstLine = false;
+                        }
+                        else
+                        {
+                            secondLinePosition.X = Canvas.GetLeft(gridOfShape) + (gridOfShape.Width / 2);
+                            secondLinePosition.Y = Canvas.GetTop(gridOfShape) + (gridOfShape.Height / 2);
+                            Line newLine = new Line
+                            {
+                                Stroke = Brushes.Black,
+                                StrokeThickness = 2,
+                                X1 = firstLinePosition.X,
+                                X2 = secondLinePosition.X,
+                                Y1 = firstLinePosition.Y,
+                                Y2 = secondLinePosition.Y
+                            };
+                            Canvas.SetZIndex(newLine, -10);
+                            CanvasChart.Children.Add(newLine);
+                            firstLine = true;
+                        }
+                    }
                     break;
                 case Enums.SelectedShape.Move:
-                    HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
                     if (result != null)
                     {
                         unknownGrid = result.VisualHit as Grid;
                         if (unknownGrid != null)
-                        {       
+                        {
+                            currentPosition = new Point
+                            {
+                                X = Canvas.GetLeft(unknownGrid),
+                                Y = Canvas.GetTop(unknownGrid)
+                            };    
                             unknownGrid.CaptureMouse();
                             isShapeMoving = true;
                         }
                         unknownShape = result.VisualHit as Shape;
+                        
                         if (unknownShape != null)
                         {
+                            movableGrid = unknownShape.Parent as Grid;
+
+                            currentPosition = new Point()
+                            {
+                                X = Canvas.GetLeft(movableGrid),
+                                Y = Canvas.GetTop(movableGrid)
+                            };
+
+                            
+
+                            //movableGrid = unknownShape.Parent as Grid;
+
                             unknownShape.CaptureMouse();
                             isShapeMoving = true;
                         }
@@ -177,13 +216,6 @@ namespace FlowChart
         }
         private void CanvasChart_OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (polyLine != null)
-            {
-                polySegment.Points[1] = e.GetPosition(CanvasChart);
-
-                var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
-                polySegment.Stroke = distance >= 20 ? Brushes.Green : Brushes.Red;
-            }
             if (!isShapeMoving)
             {
                 return;
@@ -191,60 +223,98 @@ namespace FlowChart
             Point pt = e.GetPosition(CanvasChart);
             if (isShapeMoving)
             {
-                
                 if (unknownGrid != null)
                 {
+                    //set new grid position
                     Canvas.SetTop(unknownGrid, pt.Y - unknownGrid.Height / 2);
                     Canvas.SetLeft(unknownGrid, pt.X - unknownGrid.Width / 2);
+
+                    //hitta alla lines i canvas som ligger i samma koordinater som denna griden och flytta dem samtidigt
+                    foreach (var item in CanvasChart.Children)
+                    {
+                        Line line = item as Line;
+
+                        if(line != null)
+                        {
+                            if (line.X1 == currentPosition.X && line.Y1 == currentPosition.Y)
+                            {
+                                line.X1 = pt.X;
+                                line.Y1 = pt.Y;
+                            }
+                            else if (line.X2 == currentPosition.X && line.Y2 == currentPosition.Y)
+                            {
+                                line.X2 = pt.X;
+                                line.Y2 = pt.Y;
+                            }
+                        }  
+                    }
+                    currentPosition = pt; 
                 }
                 if (unknownShape != null)
                 {
-                    var MovableShape = unknownShape.Parent  as Grid;
-                    Canvas.SetTop(MovableShape, pt.Y - MovableShape.Height / 2);
-                    Canvas.SetLeft(MovableShape, pt.X - MovableShape.Width / 2);
+                    //Canvas.SetTop(unknownGrid, pt.Y - unknownGrid.Height / 2);
+                    //Canvas.SetLeft(unknownGrid, pt.X - unknownGrid.Width / 2);
+
+                    //set new grid position
+                    //Grid MovableGrid = unknownShape.Parent  as Grid;
+                    Canvas.SetTop(movableGrid, pt.Y - movableGrid.Height / 2);
+                    Canvas.SetLeft(movableGrid, pt.X - movableGrid.Width / 2);
+
+                    System.Console.WriteLine("hgjgfhjv");
+
+                    //hitta alla lines i canvas som ligger i samma koordinater som denna griden och flytta dem samtidigt
+                    foreach (var item in CanvasChart.Children)
+                    {
+                        Line line = item as Line;
+
+                        if (line != null)
+                        {
+                            System.Console.WriteLine("Current Grid pos: " + new Point(currentPosition.X, currentPosition.Y).ToString());
+                            System.Console.WriteLine("new Grid pos: " + new Point(Canvas.GetLeft(movableGrid),
+                                                                                    Canvas.GetTop(movableGrid)).ToString());
+                            System.Console.WriteLine("line1 pos: " + new Point(line.X1 - (movableGrid.Width / 2), line.Y1 - (movableGrid.Height / 2)).ToString());
+                            System.Console.WriteLine("line2 pos: " + new Point(line.X2, line.Y2).ToString());
+
+                            //System.Console.WriteLine("Line pos: " + new Point(line.X1, line.Y1).ToString());
+
+                            Point linePos = new Point(currentPosition.X + (movableGrid.Width / 2), currentPosition.Y + (movableGrid.Height / 2));
+
+                            System.Console.WriteLine("line pos adjusted: " + linePos.ToString());
+
+                            if (line.X1 == linePos.X && line.Y1 == linePos.Y)
+                            {
+                                System.Console.WriteLine("2");
+                                line.X1 = pt.X;
+                                line.Y1 = pt.Y;
+                            }
+                            else if (line.X2 == linePos.X && line.Y2 == linePos.Y)
+                            {
+                                System.Console.WriteLine("3");
+                                line.X2 = pt.X;
+                                line.Y2 = pt.Y;
+                            }
+                        }
+                    }
+                    currentPosition = new Point(Canvas.GetLeft(movableGrid), Canvas.GetTop(movableGrid));
                 }      
             }
         }
 
         private void CanvasChart_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Point pt = e.GetPosition(CanvasChart);
             if (isShapeMoving)
             {        
-                    if (unknownGrid != null)
-                    {
-                        unknownGrid.ReleaseMouseCapture();
-                        isShapeMoving = false;
-                    }
-                    if (unknownShape != null)
-                    {
-                        unknownShape.ReleaseMouseCapture();
-                        isShapeMoving = false;
-                    }
-            }
-
-            if (isMakingLine && polyLine != null)
-            {
-                polySegment.Points[1] = e.GetPosition(CanvasChart);
-                //kontrollerar att linjen är längre än 20 annars ritas den ej ut.
-                var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
-                if (distance >= 20)
+                if (unknownGrid != null)
                 {
-                    polyLine.Points.Add(polySegment.Points[1]);
-                    polySegment.Points[0] = polySegment.Points[1];
-                    isMakingLine = false;    
-                    polyLine = null;
+                    unknownGrid.ReleaseMouseCapture();
+                    isShapeMoving = false;
+                    unknownGrid = null;
                 }
-                else
+                if (unknownShape != null)
                 {
-                    if (polyLine.Points.Count < 2)
-                    {
-                      CanvasChart.Children.Remove(polyLine);   
-                    }
-                    polyLine = null;
-                    polySegment.Points.Clear();
-                    CanvasChart.Children.Remove(polySegment);
-
+                    unknownShape.ReleaseMouseCapture();
+                    isShapeMoving = false;
+                    unknownShape = null;
                 }
             }
         }
