@@ -20,6 +20,8 @@ namespace FlowChart
         private Polyline polyLine;
         private Polyline polySegment;
         private SolidColorBrush chosenColor;
+        private Grid unknownGrid = null;
+        private Shape unknownShape = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -27,7 +29,7 @@ namespace FlowChart
         private void CanvasChart_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             //Tar musposition
-            Point pt = e.GetPosition((Canvas) sender);
+            Point pt = e.GetPosition(CanvasChart);
 
             //Använder HitTest() för att se om användaren klickade på ett item i canvas
             HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
@@ -43,7 +45,7 @@ namespace FlowChart
         {
             //Tar fram ett hexadecimalt värde ifrån färgväljaren och converterar till en Brush
             chosenColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(clrPicker.SelectedColorText));
-            Point pt = e.GetPosition((Canvas)sender);
+            Point pt = e.GetPosition(CanvasChart);
             Grid gridToRender = null;
             switch (currentOption)
             {
@@ -78,6 +80,7 @@ namespace FlowChart
                         Background = Brushes.Transparent,
                         Height = 50,
                         Width = 80
+
                     };
                     gridToRender.Children.Add(new Rectangle()
                     {
@@ -148,45 +151,78 @@ namespace FlowChart
                     HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
                     if (result != null)
                     {
-                        var unknownShape = result.VisualHit as Shape;
-                        var unknownGrid = unknownShape.Parent as Grid;
+                        unknownGrid = result.VisualHit as Grid;
                         if (unknownGrid != null)
-                        {
+                        {       
                             unknownGrid.CaptureMouse();
-                            isShapeMoving = true;                
+                            isShapeMoving = true;
                         }
-                    }                  
+                        unknownShape = result.VisualHit as Shape;
+                        if (unknownShape != null)
+                        {
+                            unknownShape.CaptureMouse();
+                            isShapeMoving = true;
+                        }
+                    }
                     break;  
                 default:
                     return;
             }
             if (gridToRender != null)
             {
-                //double left = pt.X - (shapeToRender.ActualWidth/2);
-                //double top = pt.Y - (shapeToRender.ActualHeight/2);
                 Canvas.SetLeft(gridToRender, pt.X);
                 Canvas.SetTop(gridToRender, pt.Y);
                 CanvasChart.Children.Add(gridToRender);
             }
         }
-
-        private void CanvasChart_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void CanvasChart_OnMouseMove(object sender, MouseEventArgs e)
         {
+            if (polyLine != null)
+            {
+                polySegment.Points[1] = e.GetPosition(CanvasChart);
+
+                var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
+                polySegment.Stroke = distance >= 20 ? Brushes.Green : Brushes.Red;
+            }
+            if (!isShapeMoving)
+            {
+                return;
+            }
+            Point pt = e.GetPosition(CanvasChart);
             if (isShapeMoving)
             {
                 
-                Point pt = e.GetPosition((Canvas) sender);
-                HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-                if (result != null)
+                if (unknownGrid != null)
                 {
-                    var unknownShape = result.VisualHit as Grid;
+                    Canvas.SetTop(unknownGrid, pt.Y - unknownGrid.Height / 2);
+                    Canvas.SetLeft(unknownGrid, pt.X - unknownGrid.Width / 2);
+                }
+                if (unknownShape != null)
+                {
+                    var MovableShape = unknownShape.Parent  as Grid;
+                    Canvas.SetTop(MovableShape, pt.Y - MovableShape.Height / 2);
+                    Canvas.SetLeft(MovableShape, pt.X - MovableShape.Width / 2);
+                }      
+            }
+        }
+
+        private void CanvasChart_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Point pt = e.GetPosition(CanvasChart);
+            if (isShapeMoving)
+            {        
+                    if (unknownGrid != null)
+                    {
+                        unknownGrid.ReleaseMouseCapture();
+                        isShapeMoving = false;
+                    }
                     if (unknownShape != null)
                     {
                         unknownShape.ReleaseMouseCapture();
-                        isShapeMoving = false;                    
+                        isShapeMoving = false;
                     }
-                }
             }
+
             if (isMakingLine && polyLine != null)
             {
                 polySegment.Points[1] = e.GetPosition(CanvasChart);
@@ -213,36 +249,6 @@ namespace FlowChart
             }
         }
 
-        private void CanvasChart_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            if (polyLine != null)
-            {
-                polySegment.Points[1] = e.GetPosition(CanvasChart);
-
-                var distance = (polySegment.Points[0] - polySegment.Points[1]).Length;
-                polySegment.Stroke = distance >= 20 ? Brushes.Green : Brushes.Red;
-            }
-            if (!isShapeMoving)
-            {
-                return;
-            }
-            Point pt = e.GetPosition((Canvas) sender);
-            HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-            if (result != null)
-            {
-                var unknownShape = result.VisualHit as Grid;
-                if (unknownShape != null)
-                {
-                    // Centrerar geometri till musen
-                    double left = pt.X - (unknownShape.ActualWidth / 2);
-                    double top = pt.Y - (unknownShape.ActualHeight / 2);
-                    //Sätter ny position
-                    Canvas.SetLeft(unknownShape, left);
-                    Canvas.SetTop(unknownShape, top);        
-                }
-            }
-
-        }
 
         private void BtnClear_OnClick(object sender, RoutedEventArgs e)
         {
