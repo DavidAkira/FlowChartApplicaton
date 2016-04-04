@@ -14,7 +14,7 @@ namespace FlowChart
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Enums.SelectedShape currentOption = Enums.SelectedShape.Move;
+        private Enums.SelectedShape currentSelectedOption = Enums.SelectedShape.Move;
         private bool isShapeMoving;
         private SolidColorBrush chosenColor;
         private Grid unknownGrid = null;
@@ -22,7 +22,6 @@ namespace FlowChart
         private bool firstLine = true;
         private Point firstLinePosition;
         private Point secondLinePosition;
-
         private Point currentPosition;
         private Grid movableGrid;
 
@@ -30,35 +29,41 @@ namespace FlowChart
         {
             InitializeComponent();
         }
-        private void CanvasChart_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void cnvMain_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //Tar musposition
-            Point pt = e.GetPosition(CanvasChart);
+            //Tar musposition relativ till Canvas
+            Point pt = e.GetPosition(cnvMain);
 
             //Använder HitTest() för att se om användaren klickade på ett item i canvas
-            HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-            
-            // Tar bort den visuella träffen från canvas.
+            HitTestResult result = VisualTreeHelper.HitTest(cnvMain, pt);
+
+            // Tar bort den visuella träffen från canvas vid högerklick.
             if (result != null)
-            {                
-                CanvasChart.Children.Remove(result.VisualHit as Shape);
-                CanvasChart.Children.Remove(result.VisualHit as Grid);
+            {
+                Shape removableShape = result.VisualHit as Shape;
+                if (removableShape != null)
+                {
+                    var removableGrid = removableShape.Parent as Grid;            
+                    cnvMain.Children.Remove(result.VisualHit as Shape);
+                    cnvMain.Children.Remove(removableGrid);                
+                }    
             }
         }
 
-        private void CanvasChart_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void cnvMain_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //Tar fram ett hexadecimalt värde ifrån färgväljaren och converterar till en Brush
             chosenColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(clrPicker.SelectedColorText));
-            Point pt = e.GetPosition(CanvasChart);
+            
+            Point pt = e.GetPosition(cnvMain);
             Grid gridToRender = null;
-            HitTestResult result = VisualTreeHelper.HitTest(CanvasChart, pt);
-            switch (currentOption)
+            HitTestResult result = VisualTreeHelper.HitTest(cnvMain, pt);
+            switch (currentSelectedOption)
             {
-                case Enums.SelectedShape.Circle:
+                //Skapar de olika formerna
+                case Enums.SelectedShape.Ellipse:
                     gridToRender = new Grid
-                    {   
-                        
+                    {       
                         Height = 50,
                         Width = 80
                     };
@@ -82,11 +87,9 @@ namespace FlowChart
                     break;
                 case Enums.SelectedShape.Rectangle:
                     gridToRender = new Grid
-                    {
-                        
+                    {               
                         Height = 50,
                         Width = 80
-
                     };
                     gridToRender.Children.Add(new Rectangle()
                     {
@@ -110,8 +113,7 @@ namespace FlowChart
                     break;
                 case Enums.SelectedShape.Diamond:
                     gridToRender = new Grid
-                    {
-                        Background = Brushes.Transparent,
+                    { 
                         Height = 80,
                         Width = 80
                     };
@@ -157,7 +159,7 @@ namespace FlowChart
                             Line newLine = new Line
                             {
                                 Stroke = Brushes.Black,
-                                StrokeThickness = 2,
+                                StrokeThickness = 5,
                                 X1 = firstLinePosition.X,
                                 X2 = secondLinePosition.X,
                                 Y1 = firstLinePosition.Y,
@@ -165,27 +167,16 @@ namespace FlowChart
                             };
                             Canvas.SetZIndex(newLine, -10);
                             newLine.IsHitTestVisible = false;
-                            CanvasChart.Children.Add(newLine);
+                            cnvMain.Children.Add(newLine);
                             firstLine = true;
                         }
                     }
                     break;
                 case Enums.SelectedShape.Move:
+                    //Greppar en shape på canvasen och sätter igång ett tracking event på musen för att kunna flytta omkring shapen på canvasen.
                     if (result != null)
                     {
-                        unknownGrid = result.VisualHit as Grid;
-                        if (unknownGrid != null)
-                        {
-                            currentPosition = new Point
-                            {
-                                X = Canvas.GetLeft(unknownGrid),
-                                Y = Canvas.GetTop(unknownGrid)
-                            };    
-                            unknownGrid.CaptureMouse();
-                            isShapeMoving = true;
-                        }
-                        unknownShape = result.VisualHit as Shape;
-                        
+                        unknownShape = result.VisualHit as Shape; 
                         if (unknownShape != null)
                         {
                             movableGrid = unknownShape.Parent as Grid;
@@ -207,85 +198,44 @@ namespace FlowChart
             }
             if (gridToRender != null)
             {
+                //Ritar ut formen på canvasen.
                 Canvas.SetLeft(gridToRender, pt.X);
                 Canvas.SetTop(gridToRender, pt.Y);
-                CanvasChart.Children.Add(gridToRender);
+                cnvMain.Children.Add(gridToRender);
             }
         }
-        private void CanvasChart_OnMouseMove(object sender, MouseEventArgs e)
+        private void cnvMain_OnMouseMove(object sender, MouseEventArgs e)
         {
+            //Om inte Move funktionen är aktiverad, return.
             if (!isShapeMoving)
             {
                 return;
             }
-            Point pt = e.GetPosition(CanvasChart);
+            Point pt = e.GetPosition(cnvMain);
             if (isShapeMoving)
             {
-                if (unknownGrid != null)
-                {
-                    //set new grid position
-                    Canvas.SetTop(unknownGrid, pt.Y - unknownGrid.Height / 2);
-                    Canvas.SetLeft(unknownGrid, pt.X - unknownGrid.Width / 2);
-
-                    //hitta alla lines i canvas som ligger i samma koordinater som denna griden och flytta dem samtidigt
-                    foreach (var item in CanvasChart.Children)
-                    {
-                        Line line = item as Line;
-
-                        if(line != null)
-                        {
-                            if (line.X1 == currentPosition.X && line.Y1 == currentPosition.Y)
-                            {
-                                line.X1 = pt.X;
-                                line.Y1 = pt.Y;
-                            }
-                            else if (line.X2 == currentPosition.X && line.Y2 == currentPosition.Y)
-                            {
-                                line.X2 = pt.X;
-                                line.Y2 = pt.Y;
-                            }
-                        }  
-                    }
-                    currentPosition = pt; 
-                }
                 if (unknownShape != null)
                 {
-                    //Canvas.SetTop(unknownGrid, pt.Y - unknownGrid.Height / 2);
-                    //Canvas.SetLeft(unknownGrid, pt.X - unknownGrid.Width / 2);
-
-                    //set new grid position
-                    //Grid MovableGrid = unknownShape.Parent  as Grid;
+                    //Sätter den flyttade shapen till en ny position på canvas.
                     Canvas.SetTop(movableGrid, pt.Y - movableGrid.Height / 2);
                     Canvas.SetLeft(movableGrid, pt.X - movableGrid.Width / 2);
 
                     //hitta alla lines i canvas som ligger i samma koordinater som denna griden och flytta dem samtidigt
-                    foreach (var item in CanvasChart.Children)
+                    foreach (var item in cnvMain.Children)
                     {
                         Line line = item as Line;
-
                         if (line != null)
                         {
-                            System.Console.WriteLine("Current Grid pos: " + new Point(currentPosition.X, currentPosition.Y).ToString());
-                            System.Console.WriteLine("new Grid pos: " + new Point(Canvas.GetLeft(movableGrid),
-                                                                                    Canvas.GetTop(movableGrid)).ToString());
-                            System.Console.WriteLine("line1 pos: " + new Point(line.X1 - (movableGrid.Width / 2), line.Y1 - (movableGrid.Height / 2)).ToString());
-                            System.Console.WriteLine("line2 pos: " + new Point(line.X2, line.Y2).ToString());
-
-                            //System.Console.WriteLine("Line pos: " + new Point(line.X1, line.Y1).ToString());
-
+                            //justerar positionen på var den hittar linjen
                             Point linePos = new Point(currentPosition.X + (movableGrid.Width / 2), currentPosition.Y + (movableGrid.Height / 2));
-
-                            System.Console.WriteLine("line pos adjusted: " + linePos.ToString());
 
                             if (line.X1 == linePos.X && line.Y1 == linePos.Y)
                             {
-                                System.Console.WriteLine("2");
                                 line.X1 = pt.X;
                                 line.Y1 = pt.Y;
                             }
                             else if (line.X2 == linePos.X && line.Y2 == linePos.Y)
                             {
-                                System.Console.WriteLine("3");
                                 line.X2 = pt.X;
                                 line.Y2 = pt.Y;
                             }
@@ -296,21 +246,15 @@ namespace FlowChart
             }
         }
 
-        private void CanvasChart_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void cnvMain_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            //Avslutar move funktionen.
             if (isShapeMoving)
             {        
-                if (unknownGrid != null)
+                if (movableGrid != null)
                 {
-                    unknownGrid.ReleaseMouseCapture();
+                    movableGrid.ReleaseMouseCapture();
                     isShapeMoving = false;
-                    unknownGrid = null;
-                }
-                if (unknownShape != null)
-                {
-                    unknownShape.ReleaseMouseCapture();
-                    isShapeMoving = false;
-                    unknownShape = null;
                 }
             }
         }
@@ -318,7 +262,7 @@ namespace FlowChart
 
         private void BtnClear_OnClick(object sender, RoutedEventArgs e)
         {
-            CanvasChart.Children.Clear();
+            cnvMain.Children.Clear();
         }
 
         private void BtnClose_OnClick(object sender, RoutedEventArgs e)
@@ -326,29 +270,29 @@ namespace FlowChart
             Application.Current.Shutdown();
         }
 
-        private void RbCircleOption_OnClick(object sender, RoutedEventArgs e)
+        private void RbEllipseOption_OnClick(object sender, RoutedEventArgs e)
         {
-            currentOption = Enums.SelectedShape.Circle;
+            currentSelectedOption = Enums.SelectedShape.Ellipse;
         }
 
         private void RbRectangleOption_OnClick(object sender, RoutedEventArgs e)
         {
-            currentOption = Enums.SelectedShape.Rectangle;
+            currentSelectedOption = Enums.SelectedShape.Rectangle;
         }
 
         private void RbDiamondOption_OnClick(object sender, RoutedEventArgs e)
         {
-            currentOption = Enums.SelectedShape.Diamond;
+            currentSelectedOption = Enums.SelectedShape.Diamond;
         }
 
         private void RbLineOption_OnClick(object sender, RoutedEventArgs e)
         {
-            currentOption = Enums.SelectedShape.Line;
+            currentSelectedOption = Enums.SelectedShape.Line;
         }
 
         private void RbMoveOption_OnClick(object sender, RoutedEventArgs e)
         {
-            currentOption = Enums.SelectedShape.Move;
+            currentSelectedOption = Enums.SelectedShape.Move;
         }
     }
 }

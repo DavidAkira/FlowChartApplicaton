@@ -6,12 +6,19 @@
         xmlns:local="clr-namespace:FlowChart"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800" ResizeMode="CanResizeWithGrip">
+        Title="MainWindow" Height="600" Width="800" ResizeMode="CanResizeWithGrip" SizeToContent="WidthAndHeight">
     <Grid>
-        <DockPanel HorizontalAlignment="Left" Height="569" LastChildFill="True"  VerticalAlignment="Top" Width="800" Margin="0,0,-8,0">
-            <Grid Height="50" Background="WhiteSmoke" Width="800" DockPanel.Dock="Top">
-                <ToolBar Background="AliceBlue" HorizontalAlignment="Center">
-                    <RadioButton x:Name="rbCircleOption" GroupName="shapeSelection" Click="RbCircleOption_OnClick">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition MinHeight="300" Height="*"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="550"  Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" Height="50" Background="WhiteSmoke" Width="Auto" VerticalAlignment="Top">
+            <ToolBar Grid.Row="0" Grid.Column="0" Background="AliceBlue" HorizontalAlignment="Center">
+                <RadioButton x:Name="rbCircleOption" GroupName="shapeSelection" Click="RbEllipseOption_OnClick">
                         <Ellipse Fill="CornflowerBlue" Height="35" Width="35" />
                     </RadioButton>
                     <RadioButton x:Name="rbRectangleOption" GroupName="shapeSelection" Click="RbRectangleOption_OnClick">
@@ -24,19 +31,19 @@
                     <RadioButton x:Name="rbLineOption" GroupName="shapeSelection" Click="RbLineOption_OnClick">
                         <Line Height="35" Width="35" StrokeThickness="8" Stroke="CornflowerBlue" X1="5" Y1="5" Y2="30" X2="30" StrokeStartLineCap="Triangle" StrokeEndLineCap="Round"/>
                     </RadioButton>
-                    <RadioButton x:Name="rbMoveOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbMoveOption_OnClick">M
-                    </RadioButton>
+                <RadioButton x:Name="rbMoveOption" GroupName="shapeSelection" Padding="0,0,0,0" Margin="0,-11,0,-5" FontSize="45" Width="40" Height="61" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0" Click="RbMoveOption_OnClick">M
+                </RadioButton>
                 </ToolBar>
-            </Grid>
-            <Grid DockPanel.Dock="Bottom" Height="50" Background="AliceBlue" Margin="0,0,10,0" Width="Auto">
-                <Button x:Name="btnClear" Content="Rensa" Height="30" HorizontalAlignment="Left" Width="70" Margin="10,10,0,10" Click="BtnClear_OnClick"/>
+        </Grid>
+        <Grid Grid.Row="2" Grid.Column="0" Height="50" Background="AliceBlue">
+                <Button x:Name="btnClear" Content="Rensa" Height="30" HorizontalAlignment="Left" Width="70" Margin="10,0,0,0" Click="BtnClear_OnClick"/>
+                <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,150,0">Välj färg här:</Label>
                 <xctk:ColorPicker x:Name="clrPicker" SelectedColor="CornflowerBlue" Width="50" Height="30"></xctk:ColorPicker>
-                <Button x:Name="btnClose" Content="Avsluta" Height="30" HorizontalAlignment="Left" Width="70" Margin="710,10,0,10" Click="BtnClose_OnClick"/>
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="200,0,0,0">Högerklicka för att radera</Label>
+            <Button x:Name="btnClose" Content="Avsluta" Height="30" HorizontalAlignment="Right" Width="70" Margin="0,0,10,0" Click="BtnClose_OnClick"/>
             </Grid>
-            <Canvas Name="CanvasChart" Background="Transparent" ClipToBounds="True" MouseRightButtonDown="CanvasChart_OnMouseRightButtonDown" MouseLeftButtonDown="CanvasChart_OnMouseLeftButtonDown" MouseLeftButtonUp="CanvasChart_OnMouseLeftButtonUp" MouseMove="CanvasChart_OnMouseMove" Height="Auto" DockPanel.Dock="Left" Width="Auto">
-                <ContentControl></ContentControl>
+        <Canvas Grid.Row="1" Grid.Column="0" Name="cnvMain" Background="Transparent" ClipToBounds="True" MouseRightButtonDown="cnvMain_OnMouseRightButtonDown" MouseLeftButtonDown="cnvMain_OnMouseLeftButtonDown" MouseLeftButtonUp="cnvMain_OnMouseLeftButtonUp" MouseMove="cnvMain_OnMouseMove" Height="Auto" Width="Auto">
             </Canvas>
-        </DockPanel>
 
     </Grid>
 </Window>
